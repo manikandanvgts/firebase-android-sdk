@@ -58,6 +58,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
@@ -205,9 +207,12 @@ public class ConfigFetchHttpClient {
       }
       fetchResponseETag = urlConnection.getHeaderField(ETAG_HEADER);
       fetchResponse = getFetchResponseBody(urlConnection);
-    } catch (IOException | JSONException e) {
+    } catch (SocketException e) {
       throw new FirebaseRemoteConfigClientException(
-          "The client had an error while calling the backend!", e);
+              "Internet is not connected", e);
+    }catch (IOException | JSONException e) {
+      throw new FirebaseRemoteConfigClientException(
+              "The client had an error while calling the backend!", e);
     } finally {
       urlConnection.disconnect();
       // Explicitly close the input stream due to a bug in the Android okhttp implementation.
